@@ -1,26 +1,43 @@
-#include <criterion/criterion.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "mymalloc.h"
 
-Test(free_semantics, free_null_is_noop) {
+void test_free_null_is_noop(void) {
+    printf("Running free_semantics::free_null_is_noop...\n");
     free(NULL);
-    // If we got here, it's a pass (no crash, no exit)
-    cr_assert(true);
+    // If we got here, no crash occurred
+    printf("✓ passed\n");
 }
 
-Test(free_semantics, allocator_does_not_modify_payload_while_allocated) {
+void test_allocator_does_not_modify_payload_while_allocated(void) {
+    printf("Running free_semantics::allocator_does_not_modify_payload_while_allocated...\n");
+
     const size_t n = 64;
     unsigned char *p = malloc(n);
-    cr_assert_not_null(p);
-    for (size_t i = 0; i < n; ++i) p[i] = (unsigned char)(i ^ 0x5A);
+    assert(p != NULL && "malloc failed");
+
+    for (size_t i = 0; i < n; ++i)
+        p[i] = (unsigned char)(i ^ 0x5A);
 
     // Perform some unrelated alloc/free to exercise the allocator
-    void *q = malloc(32); cr_assert_not_null(q);
+    void *q = malloc(32);
+    assert(q != NULL && "second malloc failed");
     free(q);
 
     // Ensure our payload stayed intact
     for (size_t i = 0; i < n; ++i)
-        cr_expect_eq(p[i], (unsigned char)(i ^ 0x5A), "payload modified at %zu", i);
+        assert(p[i] == (unsigned char)(i ^ 0x5A) && "payload modified during allocation/free");
 
     free(p);
+    printf("✓ passed\n");
+}
+
+int main(void) {
+    test_free_null_is_noop();
+    test_allocator_does_not_modify_payload_while_allocated();
+
+    printf("\nAll free_semantics tests passed successfully.\n");
+    return 0;
 }
