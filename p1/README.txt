@@ -30,8 +30,8 @@ Test Descriptions
 
     Stress tests:
 
-        memgrind.c performs 120 iterations of repeated allocation and freeing to simulate real-world usage. It includes immediate-free, batch-free, and random allocation patterns to test stability and fragmentation resistance.
-
+        memgrind.c runs a workload of five distinct tasks to test the allocator's performance and stability. The tasks include: (1) 120 immediate allocations and frees of 1-byte objects, (2) batch allocation of 120 1-byte objects followed by a batch free, (3) a randomized sequence of allocations and deallocations, (4) building and freeing a linked list, and (5) recursively building and freeing a binary tree.
+        
     Negative tests:
 
         double_free_test.c calls free() twice on the same pointer. The allocator should detect the double free, print an error to standard error, and exit with status code 2.
