@@ -115,7 +115,7 @@ void myfree(void *ptr, char *file, int line) {
 
     target->is_free = 1;
 
-    Metadata *current = (Metadata *)heap.bytes;
+    current = (Metadata *)heap.bytes;
     while (current != NULL && current->next != NULL) {
         if (current->is_free && current->next->is_free) {
             current->size += HEADER_SIZE + current->next->size;
