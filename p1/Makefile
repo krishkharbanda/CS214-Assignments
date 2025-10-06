@@ -1,7 +1,3 @@
-# =========================
-#   Makefile (Criterion)
-# =========================
-
 # ---- Compiler & Flags ----
 CC        ?= gcc
 CSTD      ?= c11
@@ -24,7 +20,6 @@ endif
 HEADERSIZE ?= 24
 CPPFLAGS   += -DHEADERSIZE=$(HEADERSIZE)
 
-# ---- Criterion Detection (pkg-config first, Homebrew fallback) ----
 PKGCONF   ?= pkg-config
 CRIT_PKG  := $(shell $(PKGCONF) --exists criterion && echo criterion)
 ifeq ($(CRIT_PKG),)
@@ -32,7 +27,6 @@ ifeq ($(CRIT_PKG),)
 endif
 
 ifeq ($(CRIT_PKG),)
-  # Fallback for Homebrew installs if pkg-config can't see criterion
   BREW_PREFIX := $(shell brew --prefix 2>/dev/null)
   ifneq ($(BREW_PREFIX),)
     CPPFLAGS += -I$(BREW_PREFIX)/include
@@ -88,7 +82,6 @@ help:
 	@echo "  HEADERSIZE=<n>                   # header size visible to tests (default $(HEADERSIZE))"
 	@echo "  SAN=1                            # enable sanitizers"
 
-# ---- Criterion Suites ----
 # Custom allocator suite
 allocator_tests: $(ALLOC_TEST_BIN)
 

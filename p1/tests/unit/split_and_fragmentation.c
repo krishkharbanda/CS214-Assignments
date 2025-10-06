@@ -1,4 +1,3 @@
-// tests/unit/split_and_fragmentation.c
 #include <criterion/criterion.h>
 #include <string.h>
 #include "mymalloc.h"
@@ -12,7 +11,6 @@ Test(split_and_fragmentation, split_large_block_into_two_usable_blocks) {
     cr_assert_not_null(p);
     memset(p, 0xCC, big);
 
-    // Free it so free list has one large free chunk
     free(p);
 
     // Now allocate two smaller blocks that should both fit via splitting

@@ -1,10 +1,9 @@
-// tests/unit/alloc_basics.c
 #include <criterion/criterion.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
-#include "mymalloc.h"   // wraps malloc/free to your allocator
+#include "mymalloc.h"  
 
 static inline size_t round8(size_t k) { return (k + 7) & ~((size_t)7); }
 
@@ -14,7 +13,7 @@ Test(alloc_basics, alignment_and_rounding) {
         cr_assert_not_null(p, "malloc(%zu) returned NULL unexpectedly", k);
         cr_assert(((uintptr_t)p % 8) == 0, "pointer not 8-byte aligned for k=%zu", k);
 
-        // Write exactly the rounded payload (should be safe for your allocator).
+        // Write exactly the rounded payload (should be safe for allocator).
         size_t r = round8(k);
         memset(p, 0xAB, r);
         free(p);
@@ -39,7 +38,6 @@ Test(alloc_basics, non_overlapping_allocations) {
 }
 
 Test(alloc_basics, exhaustion_returns_null_without_crashing) {
-    // Mirror professor’s math: OBJECTS=64, OBJSIZE = 4096/64 - HEADERSIZE
     enum { MEMSIZE = 4096, OBJECTS = 64 };
     const size_t objsize = MEMSIZE / OBJECTS - HEADERSIZE;
 
@@ -62,11 +60,9 @@ Test(alloc_basics, exhaustion_returns_null_without_crashing) {
 }
 
 Test(alloc_basics, malloc_zero_policy_is_consistent) {
-    // Whatever policy you chose: either NULL or a free-able minimal chunk.
     void *p = malloc(0);
-    // Accept either policy, but enforce internal consistency:
     if (p) {
         cr_assert(((uintptr_t)p % 8) == 0, "malloc(0) returned misaligned pointer");
-        free(p); // must be free-able if not NULL
+        free(p); 
     }
 }

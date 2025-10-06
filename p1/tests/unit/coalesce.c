@@ -1,9 +1,7 @@
-// tests/unit/coalesce.c
 #include <criterion/criterion.h>
 #include "mymalloc.h"
 
 Test(coalesce, adjacent_frees_merge_to_satisfy_larger_request) {
-    // Use two equal-sized objects modeled after professor's math
     enum { MEMSIZE = 4096, OBJECTS = 2 };
     const size_t objsize = MEMSIZE / OBJECTS - HEADERSIZE; // payload size each
 

@@ -1,4 +1,3 @@
-// tests/negative/death_nonbase_ptr.c
 #include <stdio.h>
 #include <stdint.h>
 #include "mymalloc.h"

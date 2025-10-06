@@ -1,4 +1,3 @@
-// tests/negative/death_double_free.c
 #include <stdio.h>
 #include "mymalloc.h"
 

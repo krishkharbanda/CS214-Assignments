@@ -1,4 +1,3 @@
-// tests/negative/death_invalid_ptr.c
 #include <stdio.h>
 #include "mymalloc.h"
 

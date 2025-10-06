@@ -1,4 +1,3 @@
-// tests/unit/free_semantics.c
 #include <criterion/criterion.h>
 #include <string.h>
 #include "mymalloc.h"
