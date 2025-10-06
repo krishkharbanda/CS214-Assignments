@@ -213,7 +213,7 @@ void myfree(void *ptr, char *file, int line) {
     
     // Check for double-free.
     if (target_header->is_free) {
-        fprintf(stderr, "free: Inappropriate pointer (double free) (%s:%d)\n", file, line);
+        fprintf(stderr, "free: Inappropriate pointer (%s:%d)\n", file, line);
         exit(2);
     }
 
