@@ -1,0 +1,13 @@
+*.o
+**/bin/
+memgrind
+*.exe
+*.gcda
+*.gcno
+*.gcov
+*.tar
+*.tar.gz
+.DS_Store
+Thumbs.db
+*~
+*.swp
