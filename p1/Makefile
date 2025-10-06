@@ -1,3 +1,6 @@
+# To run normal tests: git run HEADERSIZE=24
+# To run death tests: git run-death HEADERSIZE=24
+
 # ---- Compiler & Flags ----
 CC        ?= gcc
 CSTD      ?= c11
