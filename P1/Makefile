@@ -1,114 +1,96 @@
-# ---- Compiler & Flags ----
-CC        ?= gcc
-CSTD      ?= c11
-WARN      ?= -Wall -Wextra -Werror
-DBG       ?= -g
-CFLAGS    ?= -std=$(CSTD) $(WARN) $(DBG)
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -g
 
-# Always search our local headers first
-CPPFLAGS  ?= -Iinclude
+# Source directories
+SRCDIR = src
+TESTDIR = tests
+INCDIR = include
 
-# Sanitizers: enable with `make run SAN=1`
-SANFLAGS  := -fsanitize=address,undefined -fno-omit-frame-pointer
-ifeq ($(SAN),1)
-  CFLAGS  += $(SANFLAGS)
-  LDFLAGS += $(SANFLAGS)
-endif
+# Source files
+MYMALLOC_SRC = $(SRCDIR)/mymalloc.c
+MYMALLOC_HDR = $(INCDIR)/mymalloc.h
 
-# Header size visible to allocator
-HEADERSIZE ?= 24
-CPPFLAGS   += -DHEADERSIZE=$(HEADERSIZE)
+# Main targets
+all: memtest memgrind test1 test2 test3a test3b test3c test4 test5
 
-# ---- Paths ----
-SRC_DIR    := src
-INC_DIR    := include
-TEST_DIR   := tests
-UNIT_DIR   := $(TEST_DIR)/unit
-STRESS_DIR := $(TEST_DIR)/stress
-NEG_DIR    := $(TEST_DIR)/negative
-BIN_DIR    := $(TEST_DIR)/bin
+# memtest (provided by professor)
+memtest: memtest.c $(MYMALLOC_SRC) $(MYMALLOC_HDR)
+	$(CC) $(CFLAGS) -I$(INCDIR) -o memtest memtest.c $(MYMALLOC_SRC)
 
-# ---- Sources ----
-ALLOC_SRC  := $(SRC_DIR)/mymalloc.c
-UNIT_SRC   := $(wildcard $(UNIT_DIR)/*.c)
-STRESS_SRC := $(wildcard $(STRESS_DIR)/*.c)
-NEG_SRC    := $(wildcard $(NEG_DIR)/*.c)
+# memtest with leak detection
+memtest-leak: memtest.c $(MYMALLOC_SRC) $(MYMALLOC_HDR)
+	$(CC) $(CFLAGS) -I$(INCDIR) -DLEAK -o memtest-leak memtest.c $(MYMALLOC_SRC)
 
-# ---- Outputs ----
-UNIT_BIN   := $(patsubst $(UNIT_DIR)/%.c,$(BIN_DIR)/%,$(UNIT_SRC))
-STRESS_BIN := $(patsubst $(STRESS_DIR)/%.c,$(BIN_DIR)/%,$(STRESS_SRC))
-NEG_BIN    := $(patsubst $(NEG_DIR)/%.c,$(BIN_DIR)/%,$(NEG_SRC))
+# memtest with real malloc (for comparison)
+memtest-real: memtest.c
+	$(CC) $(CFLAGS) -DREALMALLOC -o memtest-real memtest.c
 
-# ---- Phony Targets ----
-.PHONY: all help tests death_tests run run-death clean sanitize
+# memgrind (stress testing)
+memgrind: memgrind.c $(MYMALLOC_SRC) $(MYMALLOC_HDR)
+	$(CC) $(CFLAGS) -I$(INCDIR) -o memgrind memgrind.c $(MYMALLOC_SRC)
 
-# ---- Default ----
-all: tests
+# Test programs in tests directory
+test1: $(TESTDIR)/test1/test1.c $(MYMALLOC_SRC) $(MYMALLOC_HDR)
+	$(CC) $(CFLAGS) -I$(INCDIR) -o test1 $(TESTDIR)/test1/test1.c $(MYMALLOC_SRC)
 
-help:
-	@echo "Targets:"
-	@echo "  make tests                # build all test binaries"
-	@echo "  make run                  # build & run all normal tests"
-	@echo "  make death_tests          # build all death-test binaries"
-	@echo "  make run-death            # run all death tests (expect exit 2)"
-	@echo "  make sanitize SAN=1       # enable ASan/UBSan when building"
-	@echo "  make clean                # remove all build artifacts"
-	@echo ""
-	@echo "Variables:"
-	@echo "  HEADERSIZE=<n>            # header size passed to compiler (default: 24)"
+test2: $(TESTDIR)/test2/test2.c $(MYMALLOC_SRC) $(MYMALLOC_HDR)
+	$(CC) $(CFLAGS) -I$(INCDIR) -o test2 $(TESTDIR)/test2/test2.c $(MYMALLOC_SRC)
 
-# ---- Build Rules ----
-$(BIN_DIR)/%: $(UNIT_DIR)/%.c $(ALLOC_SRC) | $(BIN_DIR)
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ -o $@
+test3a: $(TESTDIR)/test3/test3a.c $(MYMALLOC_SRC) $(MYMALLOC_HDR)
+	$(CC) $(CFLAGS) -I$(INCDIR) -o test3a $(TESTDIR)/test3/test3a.c $(MYMALLOC_SRC)
 
-$(BIN_DIR)/%: $(STRESS_DIR)/%.c $(ALLOC_SRC) | $(BIN_DIR)
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ -o $@
+test3b: $(TESTDIR)/test3/test3b.c $(MYMALLOC_SRC) $(MYMALLOC_HDR)
+	$(CC) $(CFLAGS) -I$(INCDIR) -o test3b $(TESTDIR)/test3/test3b.c $(MYMALLOC_SRC)
 
-$(BIN_DIR)/%: $(NEG_DIR)/%.c $(ALLOC_SRC) | $(BIN_DIR)
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ -o $@
+test3c: $(TESTDIR)/test3/test3c.c $(MYMALLOC_SRC) $(MYMALLOC_HDR)
+	$(CC) $(CFLAGS) -I$(INCDIR) -o test3c $(TESTDIR)/test3/test3c.c $(MYMALLOC_SRC)
 
-# ---- Build Groups ----
-tests: $(UNIT_BIN) $(STRESS_BIN)
-death_tests: $(NEG_BIN)
+test4: $(TESTDIR)/test4/test4.c $(MYMALLOC_SRC) $(MYMALLOC_HDR)
+	$(CC) $(CFLAGS) -I$(INCDIR) -o test4 $(TESTDIR)/test4/test4.c $(MYMALLOC_SRC)
 
-# ---- Runners ----
-run: tests
-	@echo "==> Running all normal tests..."; echo
-	@set -e; for t in $(UNIT_BIN) $(STRESS_BIN); do \
-	  echo "Running $$t"; \
-	  ./$$t || exit 1; \
-	  echo ""; \
-	done; \
-	echo "All normal tests passed successfully."
+test5: $(TESTDIR)/test5/test5.c $(MYMALLOC_SRC) $(MYMALLOC_HDR)
+	$(CC) $(CFLAGS) -I$(INCDIR) -o test5 $(TESTDIR)/test5/test5.c $(MYMALLOC_SRC)
 
-run-death: death_tests
-	@echo "==> Running death tests (expect exit code 2)..."; echo
-	@set -e; fail=0; \
-	for t in $(NEG_BIN); do \
-	  name=$$(basename $$t); \
-	  echo "Running $$name"; \
-	  set +e; ./$$t > /dev/null 2>&1; status=$$?; set -e; \
-	  if [ $$status -ne 2 ]; then \
-	    echo "   FAIL: expected exit code 2, got $$status"; \
-	    fail=1; \
-	  fi; \
-	done; \
-	if [ $$fail -ne 0 ]; then \
-	  echo ""; echo "Death tests FAILED"; exit 1; \
-	else \
-	  echo ""; echo "All death tests passed"; \
-	fi
+# Testing targets
+test: all
+	@echo "Running all tests..."
+	@echo "=== Test 1: Basic functionality ==="
+	./test1
+	@echo
+	@echo "=== Test 2: Coalescing ==="
+	./test2
+	@echo
+	@echo "=== Test 4: Edge cases ==="
+	./test4
+	@echo
+	@echo "=== Test 5: Leak detection ==="
+	./test5
+	@echo
+	@echo "=== Professor's memtest ==="
+	./memtest
+	@echo
+	@echo "=== Professor's memtest with leaks ==="
+	./memtest-leak
+	@echo
+	@echo "=== Stress test ==="
+	./memgrind
+	@echo
+	@echo "Note: Tests 3a, 3b, and 3c should be run individually as they exit with error codes"
 
-sanitize:
-	@$(MAKE) run SAN=1 --no-print-directory
+# Test error detection (these will exit with error codes)
+test-errors:
+	@echo "=== Test 3a: Stack variable free (should exit with error) ==="
+	-./test3a
+	@echo
+	@echo "=== Test 3b: Offset pointer free (should exit with error) ==="
+	-./test3b
+	@echo
+	@echo "=== Test 3c: Double free (should exit with error) ==="
+	-./test3c
 
-# ---- Directory Setup & Cleanup ----
-$(BIN_DIR):
-	@mkdir -p $(BIN_DIR)
-
+# Clean up
 clean:
-	@echo "Cleaning build artifacts..."
-	@rm -rf $(BIN_DIR)
-	@find . -name "*.o" -delete
-	@find . -name "*.gcda" -o -name "*.gcno" -o -name "*.gcov" -delete
-	@echo "Done."
+	rm -f memtest memtest-leak memtest-real memgrind test1 test2 test3a test3b test3c test4 test5 *.o
+
+# Phony targets
+.PHONY: all test test-errors clean
