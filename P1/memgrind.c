@@ -11,7 +11,7 @@
 static double get_time() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    return tv.tv_sec + tv.tv_usec / 1000000.0;
+    return tv.tv_sec * 1000000L + tv.tv_usec;
 }
 
 // Task 1: malloc and free 1-byte objects 120 times
@@ -227,7 +227,7 @@ int main() {
     };
     
     srand(time(NULL));
-    
+    long total = 0; // not sure if this is needed but someone said to include it
     for (int i = 0; i < 5; i++) {
         printf("\n%s:\n", names[i]);
         
@@ -239,10 +239,10 @@ int main() {
         
         double end = get_time();
         double avg = (end - start) / NUM_RUNS;
-        
-        printf("Average time: %.6f seconds\n", avg);
+        total += avg; 
+        printf("Average time: %.3f microseconds\n", avg);
     }
-    
+    printf("\nAverage workload time per run: %ld microseconds\n", total / 5);
     printf("\nMemgrind done!\n");
     return 0;
 }
