@@ -1,19 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include "mymalloc.h"
 
 int main() {
-    printf("Test 3: Error detection\n");
+    printf("Test 3a: Error detection - stack variable\n");
     
-    printf("  Testing free() with stack variable...\n");
-    printf("  This should produce an error message and exit:\n");
+    printf("  Testing free() with stack var...\n");
+    printf("  Should print error and exit:\n");
     
-    int stack_var = 42;
-    printf("  Calling free(&stack_var)...\n");
+    int x = 42;
+    printf("  Calling free(&x)...\n");
     fflush(stdout);
     
-    free(&stack_var);
+    free(&x); // should error and exit
     
+    printf("  ERROR: Should have exited\n");
     return 1;
 }

@@ -1,82 +1,89 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
-#include <unistd.h>
 #include <time.h>
 #include "mymalloc.h"
 
 #define NUM_RUNS 50
 #define ALLOC_COUNT 120
 
+// Get current time
 static double get_time() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return tv.tv_sec + tv.tv_usec / 1000000.0;
 }
 
+// Task 1: malloc and free 1-byte objects 120 times
 static void task1() {
     for (int i = 0; i < ALLOC_COUNT; i++) {
         char* ptr = malloc(1);
         if (ptr == NULL) {
-            printf("Task 1: malloc failed at iteration %d\n", i);
+            printf("Task 1 failed at %d\n", i);
             exit(1);
         }
         free(ptr);
     }
 }
 
+// Task 2: allocate 120 objects then free them all
 static void task2() {
     char* ptrs[ALLOC_COUNT];
     
+    // allocate
     for (int i = 0; i < ALLOC_COUNT; i++) {
         ptrs[i] = malloc(1);
         if (ptrs[i] == NULL) {
-            printf("Task 2: malloc failed at iteration %d\n", i);
+            printf("Task 2 failed at %d\n", i);
             exit(1);
         }
     }
     
+    // free
     for (int i = 0; i < ALLOC_COUNT; i++) {
         free(ptrs[i]);
     }
 }
 
+// Task 3: random allocation/deallocation
 static void task3() {
     char* ptrs[ALLOC_COUNT];
-    int allocated_count = 0;
-    int total_allocated = 0;
+    int allocated = 0;
+    int total = 0;
     
     for (int i = 0; i < ALLOC_COUNT; i++) {
         ptrs[i] = NULL;
     }
     
-    while (total_allocated < ALLOC_COUNT) {
+    while (total < ALLOC_COUNT) {
         int choice = rand() % 2;
         
         if (choice == 0) {
-            if (allocated_count < ALLOC_COUNT) {
+            // allocate if we have space
+            if (allocated < ALLOC_COUNT) {
                 for (int i = 0; i < ALLOC_COUNT; i++) {
                     if (ptrs[i] == NULL) {
                         ptrs[i] = malloc(1);
                         if (ptrs[i] == NULL) {
-                            printf("Task 3: malloc failed\n");
+                            printf("Task 3 malloc failed\n");
                             exit(1);
                         }
-                        allocated_count++;
-                        total_allocated++;
+                        allocated++;
+                        total++;
                         break;
                     }
                 }
             }
         } else {
-            if (allocated_count > 0) {
+            // deallocate if we have objects
+            if (allocated > 0) {
                 int start = rand() % ALLOC_COUNT;
                 for (int i = 0; i < ALLOC_COUNT; i++) {
-                    int index = (start + i) % ALLOC_COUNT;
-                    if (ptrs[index] != NULL) {
-                        free(ptrs[index]);
-                        ptrs[index] = NULL;
-                        allocated_count--;
+                    int idx = (start + i) % ALLOC_COUNT;
+                    if (ptrs[idx] != NULL) {
+                        free(ptrs[idx]);
+                        ptrs[idx] = NULL;
+                        allocated--;
                         break;
                     }
                 }
@@ -84,6 +91,7 @@ static void task3() {
         }
     }
     
+    // clean up remaining
     for (int i = 0; i < ALLOC_COUNT; i++) {
         if (ptrs[i] != NULL) {
             free(ptrs[i]);
@@ -91,6 +99,7 @@ static void task3() {
     }
 }
 
+// Task 4: linked list operations
 static void task4() {
     typedef struct node {
         int data;
@@ -99,10 +108,11 @@ static void task4() {
     
     node_t* head = NULL;
     
+    // create list with 60 nodes
     for (int i = 0; i < 60; i++) {
         node_t* new_node = malloc(sizeof(node_t));
         if (new_node == NULL) {
-            printf("Task 4: malloc failed for node %d\n", i);
+            printf("Task 4 malloc failed at %d\n", i);
             exit(1);
         }
         new_node->data = i;
@@ -110,27 +120,29 @@ static void task4() {
         head = new_node;
     }
     
-    node_t* current = head;
+    // remove every other node
+    node_t* curr = head;
     node_t* prev = NULL;
-    int count = 0;
+    int cnt = 0;
     
-    while (current != NULL) {
-        if (count % 2 == 1) {
+    while (curr != NULL) {
+        if (cnt % 2 == 1) {
             if (prev != NULL) {
-                prev->next = current->next;
+                prev->next = curr->next;
             } else {
-                head = current->next;
+                head = curr->next;
             }
-            node_t* to_delete = current;
-            current = current->next;
-            free(to_delete);
+            node_t* temp = curr;
+            curr = curr->next;
+            free(temp);
         } else {
-            prev = current;
-            current = current->next;
+            prev = curr;
+            curr = curr->next;
         }
-        count++;
+        cnt++;
     }
     
+    // free remaining
     while (head != NULL) {
         node_t* temp = head;
         head = head->next;
@@ -138,30 +150,34 @@ static void task4() {
     }
 }
 
+// Task 5: dynamic array resizing
 static void task5() {
-    const int initial_size = 10;
-    const int max_operations = 100;
+    int size = 10;
+    int max_ops = 100;
     
-    int* array = malloc(initial_size * sizeof(int));
+    int* array = malloc(size * sizeof(int));
     if (array == NULL) {
-        printf("Task 5: Initial malloc failed\n");
+        printf("Task 5 initial malloc failed\n");
         exit(1);
     }
     
-    int current_size = initial_size;
+    int curr_size = size;
     
-    for (int i = 0; i < initial_size; i++) {
+    // fill initial array
+    for (int i = 0; i < size; i++) {
         array[i] = i;
     }
     
-    for (int op = 0; op < max_operations; op++) {
+    // do resize operations
+    for (int op = 0; op < max_ops; op++) {
         int operation = rand() % 3;
         
-        if (operation == 0 && current_size > 5) {
-            int new_size = current_size / 2;
+        if (operation == 0 && curr_size > 5) {
+            // shrink
+            int new_size = curr_size / 2;
             int* new_array = malloc(new_size * sizeof(int));
             if (new_array == NULL) {
-                printf("Task 5: malloc failed during shrink\n");
+                printf("Task 5 shrink failed\n");
                 exit(1);
             }
             
@@ -171,26 +187,27 @@ static void task5() {
             
             free(array);
             array = new_array;
-            current_size = new_size;
-        } else if (operation == 1 && current_size < 80) {
-            int new_size = current_size * 2;
+            curr_size = new_size;
+        } else if (operation == 1 && curr_size < 80) {
+            // grow
+            int new_size = curr_size * 2;
             int* new_array = malloc(new_size * sizeof(int));
             if (new_array == NULL) {
-                printf("Task 5: malloc failed during grow\n");
+                printf("Task 5 grow failed\n");
                 exit(1);
             }
             
-            for (int i = 0; i < current_size; i++) {
+            for (int i = 0; i < curr_size; i++) {
                 new_array[i] = array[i];
             }
             
-            for (int i = current_size; i < new_size; i++) {
+            for (int i = curr_size; i < new_size; i++) {
                 new_array[i] = i;
             }
             
             free(array);
             array = new_array;
-            current_size = new_size;
+            curr_size = new_size;
         }
     }
     
@@ -198,34 +215,34 @@ static void task5() {
 }
 
 int main() {
-    printf("Starting memory stress test with %d runs per task...\n", NUM_RUNS);
+    printf("Starting stress test with %d runs\n", NUM_RUNS);
     
     void (*tasks[])(void) = {task1, task2, task3, task4, task5};
-    const char* task_names[] = {
-        "Task 1: Immediate malloc/free",
-        "Task 2: Bulk allocate then free",
-        "Task 3: Random allocate/deallocate",
-        "Task 4: Linked list operations",
-        "Task 5: Dynamic array operations"
+    const char* names[] = {
+        "Task 1: malloc/free cycles",
+        "Task 2: bulk alloc/free", 
+        "Task 3: random ops",
+        "Task 4: linked list",
+        "Task 5: dynamic arrays"
     };
     
     srand(time(NULL));
     
-    for (int task_num = 0; task_num < 5; task_num++) {
-        printf("\n%s:\n", task_names[task_num]);
+    for (int i = 0; i < 5; i++) {
+        printf("\n%s:\n", names[i]);
         
-        double start_time = get_time();
+        double start = get_time();
         
         for (int run = 0; run < NUM_RUNS; run++) {
-            tasks[task_num]();
+            tasks[i]();
         }
         
-        double end_time = get_time();
-        double total_time = end_time - start_time;
-        double avg_time = total_time / NUM_RUNS;
+        double end = get_time();
+        double avg = (end - start) / NUM_RUNS;
         
-        printf("Average time per run: %.6f seconds\n", avg_time);
+        printf("Average time: %.6f seconds\n", avg);
     }
     
+    printf("\nMemgrind done!\n");
     return 0;
 }

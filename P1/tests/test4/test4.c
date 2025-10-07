@@ -5,83 +5,88 @@
 #include "mymalloc.h"
 
 int main() {
-    printf("Test 4: Boundary conditions and edge cases\n");
+    printf("Test 4: Edge cases\n");
     
-    printf("  Testing very large allocation...\n");
-    void* huge_ptr = malloc(10000);
-    if (huge_ptr == NULL) {
-        printf("  PASS: Large allocation correctly returned NULL\n");
+    // very large allocation
+    printf("  Testing huge allocation...\n");
+    void* huge = malloc(10000);
+    if (huge == NULL) {
+        printf("  Large alloc failed as expected\n");
     } else {
-        printf("  ERROR: Large allocation should have failed\n");
-        free(huge_ptr);
+        printf("  ERROR: Large alloc should have failed\n");
+        free(huge);
         return 1;
     }
     
-    printf("  Testing allocation of exactly remaining space...\n");
+    // exact size allocation
+    printf("  Testing exact size alloc...\n");
     
-    void* ptr1 = malloc(1000);
-    void* ptr2 = malloc(1000);
-    void* ptr3 = malloc(1000);
+    void* p1 = malloc(1000);
+    void* p2 = malloc(1000);
+    void* p3 = malloc(1000);
     
-    if (!ptr1 || !ptr2 || !ptr3) {
-        printf("  ERROR: Initial allocations failed\n");
+    if (!p1 || !p2 || !p3) {
+        printf("  ERROR: Initial allocs failed\n");
         return 1;
     }
     
-    free(ptr2);
+    free(p2); // free middle
     
-    void* exact_ptr = malloc(992);
-    if (exact_ptr != NULL) {
-        printf("  PASS: Exact allocation succeeded\n");
-        free(exact_ptr);
+    void* exact = malloc(992); // try exact size
+    if (exact != NULL) {
+        printf("  Exact alloc worked\n");
+        free(exact);
     } else {
-        printf("  WARNING: Exact allocation failed (may be due to alignment)\n");
+        printf("  WARNING: Exact alloc failed\n");
     }
     
-    free(ptr1);
-    free(ptr3);
+    free(p1);
+    free(p3);
     
-    printf("  Testing many tiny allocations...\n");
+    // many tiny allocations
+    printf("  Testing tiny allocs...\n");
     
-    void* tiny_ptrs[200];
-    int tiny_count = 0;
+    void* tiny[200];
+    int count = 0;
     
     for (int i = 0; i < 200; i++) {
-        tiny_ptrs[i] = malloc(1);
-        if (tiny_ptrs[i] != NULL) {
-            tiny_count++;
+        tiny[i] = malloc(1);
+        if (tiny[i] != NULL) {
+            count++;
         } else {
             break;
         }
     }
     
-    printf("  Successfully allocated %d tiny (1-byte) objects\n", tiny_count);
+    printf("  Got %d tiny objects\n", count);
     
-    for (int i = 0; i < tiny_count; i++) {
-        if (tiny_ptrs[i] != NULL) {
-            free(tiny_ptrs[i]);
+    // free tiny allocations
+    for (int i = 0; i < count; i++) {
+        if (tiny[i] != NULL) {
+            free(tiny[i]);
         }
     }
     
-    printf("  Testing pointer alignment...\n");
+    // alignment test
+    printf("  Testing alignment...\n");
     
     void* ptrs[10];
-    int alignment_errors = 0;
+    int align_errors = 0;
     
     for (int i = 0; i < 10; i++) {
         ptrs[i] = malloc(i + 1);
         if (ptrs[i] != NULL) {
             if ((uintptr_t)ptrs[i] % 8 != 0) {
-                printf("  ERROR: ptr[%d] not 8-byte aligned: %p\n", i, ptrs[i]);
-                alignment_errors++;
+                printf("  ERROR: ptr[%d] not aligned\n", i);
+                align_errors++;
             }
         }
     }
     
-    if (alignment_errors == 0) {
-        printf("  PASS: All pointers are properly aligned\n");
+    if (align_errors == 0) {
+        printf("  All pointers aligned\n");
     } else {
-        printf("  ERROR: %d alignment errors found\n", alignment_errors);
+        printf("  %d alignment errors\n", align_errors);
     }
     
     for (int i = 0; i < 10; i++) {
@@ -90,35 +95,37 @@ int main() {
         }
     }
     
-    printf("  Testing repeated allocation/free cycles...\n");
+    // repeated cycles
+    printf("  Testing repeated cycles...\n");
     
     for (int cycle = 0; cycle < 10; cycle++) {
-        void* cycle_ptr = malloc(100);
-        if (cycle_ptr == NULL) {
-            printf("  ERROR: Allocation failed at cycle %d\n", cycle);
+        void* ptr = malloc(100);
+        if (ptr == NULL) {
+            printf("  ERROR: Cycle %d failed\n", cycle);
             return 1;
         }
         
-        memset(cycle_ptr, cycle & 0xFF, 100);
+        // write and check data
+        memset(ptr, cycle & 0xFF, 100);
         
-        int data_error = 0;
+        int error = 0;
         for (int i = 0; i < 100; i++) {
-            if ((unsigned char)((char*)cycle_ptr)[i] != (cycle & 0xFF)) {
-                data_error = 1;
+            if ((unsigned char)((char*)ptr)[i] != (cycle & 0xFF)) {
+                error = 1;
                 break;
             }
         }
         
-        if (data_error) {
+        if (error) {
             printf("  ERROR: Data corruption in cycle %d\n", cycle);
             return 1;
         }
         
-        free(cycle_ptr);
+        free(ptr);
     }
     
-    printf("  PASS: All allocation/free cycles completed successfully\n");
+    printf("  All cycles OK\n");
     
-    printf("Test 4 completed successfully!\n");
+    printf("Test 4 passed!\n");
     return 0;
 }

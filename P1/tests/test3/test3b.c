@@ -5,7 +5,7 @@
 int main() {
     printf("Test 3b: Error detection - offset pointer\n");
     
-    printf("  Allocating memory and attempting to free offset pointer...\n");
+    printf("  Allocating memory...\n");
     int* ptr = malloc(sizeof(int) * 10);
     
     if (ptr == NULL) {
@@ -13,11 +13,12 @@ int main() {
         return 1;
     }
     
-    printf("  This should produce an error message and exit:\n");
+    printf("  Should print error and exit:\n");
     printf("  Calling free(ptr + 1)...\n");
     fflush(stdout);
     
-    free(ptr + 1);
-
+    free(ptr + 1); // should error and exit
+    
+    printf("  ERROR: Should have exited\n");
     return 1;
 }

@@ -5,7 +5,7 @@
 int main() {
     printf("Test 3c: Error detection - double free\n");
     
-    printf("  Allocating memory and freeing twice...\n");
+    printf("  Allocating memory...\n");
     int* ptr = malloc(sizeof(int) * 100);
     int* q = ptr;
     
@@ -14,14 +14,15 @@ int main() {
         return 1;
     }
     
-    printf("  First free(ptr) - should succeed...\n");
+    printf("  First free - should work...\n");
     free(ptr);
-    printf("  First free completed\n");
+    printf("  First free done\n");
     
-    printf("  Second free(q) - should produce error and exit:\n");
+    printf("  Second free - should error and exit:\n");
     fflush(stdout);
     
-    free(q);
+    free(q); // should error and exit
     
+    printf("  ERROR: Should have exited\n");
     return 1;
 }

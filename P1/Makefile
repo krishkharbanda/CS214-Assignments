@@ -1,19 +1,19 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c99 -g
 
-# Source directories
+# directories
 SRCDIR = src
 TESTDIR = tests
 INCDIR = include
 
-# Source files
+# files
 MYMALLOC_SRC = $(SRCDIR)/mymalloc.c
 MYMALLOC_HDR = $(INCDIR)/mymalloc.h
 
-# Main targets
+# targets
 all: memtest memgrind test1 test2 test3a test3b test3c test4 test5
 
-# memtest (provided by professor)
+# memtest
 memtest: memtest.c $(MYMALLOC_SRC) $(MYMALLOC_HDR)
 	$(CC) $(CFLAGS) -I$(INCDIR) -o memtest memtest.c $(MYMALLOC_SRC)
 
@@ -21,11 +21,11 @@ memtest: memtest.c $(MYMALLOC_SRC) $(MYMALLOC_HDR)
 memtest-leak: memtest.c $(MYMALLOC_SRC) $(MYMALLOC_HDR)
 	$(CC) $(CFLAGS) -I$(INCDIR) -DLEAK -o memtest-leak memtest.c $(MYMALLOC_SRC)
 
-# memtest with real malloc (for comparison)
+# memtest with real malloc to compare
 memtest-real: memtest.c
 	$(CC) $(CFLAGS) -DREALMALLOC -o memtest-real memtest.c
 
-# memgrind (stress testing)
+# memgrind
 memgrind: memgrind.c $(MYMALLOC_SRC) $(MYMALLOC_HDR)
 	$(CC) $(CFLAGS) -I$(INCDIR) -o memgrind memgrind.c $(MYMALLOC_SRC)
 
@@ -54,43 +54,40 @@ test5: $(TESTDIR)/test5/test5.c $(MYMALLOC_SRC) $(MYMALLOC_HDR)
 # Testing targets
 test: all
 	@echo "Running all tests..."
-	@echo "=== Test 1: Basic functionality ==="
+	@echo "Test 1: Basic functionality"
 	./test1
 	@echo
-	@echo "=== Test 2: Coalescing ==="
+	@echo "Test 2: Coalescing"
 	./test2
 	@echo
-	@echo "=== Test 4: Edge cases ==="
+	@echo "Test 4: Edge cases"
 	./test4
 	@echo
-	@echo "=== Test 5: Leak detection ==="
+	@echo "Test 5: Leak detection"
 	./test5
 	@echo
-	@echo "=== Professor's memtest ==="
+	@echo "memtest"
 	./memtest
 	@echo
-	@echo "=== Professor's memtest with leaks ==="
+	@echo "memtest with leaks"
 	./memtest-leak
 	@echo
-	@echo "=== Stress test ==="
+	@echo "memgrind"
 	./memgrind
 	@echo
-	@echo "Note: Tests 3a, 3b, and 3c should be run individually as they exit with error codes"
+	@echo "Tests 3a, 3b, and 3c should be run individually as they exit with error codes."
 
-# Test error detection (these will exit with error codes)
 test-errors:
-	@echo "=== Test 3a: Stack variable free (should exit with error) ==="
+	@echo "Test 3a: Stack variable free"
 	-./test3a
 	@echo
-	@echo "=== Test 3b: Offset pointer free (should exit with error) ==="
+	@echo "Test 3b: Offset pointer free"
 	-./test3b
 	@echo
-	@echo "=== Test 3c: Double free (should exit with error) ==="
+	@echo "Test 3c: Double free"
 	-./test3c
 
-# Clean up
 clean:
 	rm -f memtest memtest-leak memtest-real memgrind test1 test2 test3a test3b test3c test4 test5 *.o
 
-# Phony targets
 .PHONY: all test test-errors clean
