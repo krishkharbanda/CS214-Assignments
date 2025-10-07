@@ -1,6 +1,14 @@
 *.o
 **/bin/
 memgrind
+test1
+test2
+test3
+test3a
+test3b
+test3c
+test4
+test5
 *.exe
 *.gcda
 *.gcno
