@@ -1,0 +1,2 @@
+foo Foo FOO bar Bar BAR
+hello Hello HELLO world World WORLD
