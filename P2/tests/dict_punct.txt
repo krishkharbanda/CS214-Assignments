@@ -1,0 +1,4 @@
+word
+hello
+test
+amazing

@@ -1,8 +1,0 @@
-hello
-world
-test
-this
-is
-a
-good
-program

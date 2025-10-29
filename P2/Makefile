@@ -9,14 +9,84 @@ all: spell
 spell: $(SRCDIR)/spell.c
 	$(CC) $(CFLAGS) -o spell $(SRCDIR)/spell.c
 
+# Setup directory structure for Test 6
+setup-dirtest:
+	@mkdir -p $(TESTDIR)/dirtest/subdir
+	@cp dirtest_file1.txt $(TESTDIR)/dirtest/file1.txt 2>/dev/null || true
+	@cp dirtest_file2.txt $(TESTDIR)/dirtest/file2.txt 2>/dev/null || true
+	@cp dirtest_hidden.txt $(TESTDIR)/dirtest/.hidden.txt 2>/dev/null || true
+	@cp dirtest_subdir_file3.txt $(TESTDIR)/dirtest/subdir/file3.txt 2>/dev/null || true
+
+# Individual test targets
+test1: spell
+	@echo "=== Test 1: Basic Functionality ==="
+	@echo "Should produce no output (all words correct)"
+	-./spell $(TESTDIR)/dict_basic.txt $(TESTDIR)/input_basic.txt
+	@echo ""
+
+test2: spell
+	@echo "=== Test 2: Case Sensitivity ==="
+	@echo "Should flag 'bar' and 'world' as incorrect"
+	-./spell $(TESTDIR)/dict_case.txt $(TESTDIR)/input_case.txt
+	@echo ""
+
+test3: spell
+	@echo "=== Test 3: Punctuation Handling ==="
+	@echo "Should produce no output (punctuation handled correctly)"
+	-./spell $(TESTDIR)/dict_punct.txt $(TESTDIR)/input_punct.txt
+	@echo ""
+
+test4: spell
+	@echo "=== Test 4: Word Skipping ==="
+	@echo "Should produce no output (digit/symbol words skipped)"
+	-./spell $(TESTDIR)/dict_skip.txt $(TESTDIR)/input_skip.txt
+	@echo ""
+
+test5: spell
+	@echo "=== Test 5: Multiple Files ==="
+	@echo "Should flag 'wrong' in input_multi3.txt"
+	-./spell $(TESTDIR)/dict_multi.txt $(TESTDIR)/input_multi1.txt $(TESTDIR)/input_multi2.txt $(TESTDIR)/input_multi3.txt
+	@echo ""
+
+test6: spell setup-dirtest
+	@echo "=== Test 6: Directory Traversal ==="
+	@echo "Should produce no output (all words correct, .hidden skipped)"
+	-./spell $(TESTDIR)/dict_dir.txt $(TESTDIR)/dirtest
+	@echo ""
+
+test7: spell
+	@echo "=== Test 7: Empty File ==="
+	@echo "Should produce no output (empty file handled)"
+	-./spell $(TESTDIR)/dict_empty.txt $(TESTDIR)/input_empty.txt
+	@echo ""
+
+test8: spell
+	@echo "=== Test 8: Error Handling ==="
+	@echo "8a. Missing dictionary file:"
+	-./spell nonexistent.txt $(TESTDIR)/input_basic.txt 2>&1 | head -1
+	@echo ""
+	@echo "8b. Missing input file:"
+	-./spell $(TESTDIR)/dict_basic.txt nonexistent.txt 2>&1 | head -1
+	@echo ""
+	@echo "8c. Invalid -s usage:"
+	-./spell -s $(TESTDIR)/dict_basic.txt 2>&1 | head -1
+	@echo ""
+
+# Run all tests
+test-all: test1 test2 test3 test4 test5 test6 test7 test8
+	@echo "=== All Tests Complete ==="
+
+# Quick sanity check (tests that should pass with no output)
+test-quick: spell
+	@echo "Running quick tests (should all pass with no spelling errors)..."
+	@./spell $(TESTDIR)/dict_basic.txt $(TESTDIR)/input_basic.txt && echo "✓ Test 1 passed"
+	@./spell $(TESTDIR)/dict_punct.txt $(TESTDIR)/input_punct.txt && echo "✓ Test 3 passed"
+	@./spell $(TESTDIR)/dict_skip.txt $(TESTDIR)/input_skip.txt && echo "✓ Test 4 passed"
+	@./spell $(TESTDIR)/dict_empty.txt $(TESTDIR)/input_empty.txt && echo "✓ Test 7 passed"
+	@echo "Quick tests complete!"
+
 clean:
 	rm -f spell *.o
-	
-test: spell
-	@echo "Running basic test..."
-	-./spell $(TESTDIR)/dict_test.txt $(TESTDIR)/input_test.txt
-	@echo ""
-	@echo "Running case sensitivity test..."
-	-./spell $(TESTDIR)/dict_case.txt $(TESTDIR)/input_case.txt
+	rm -rf $(TESTDIR)/dirtest
 
-.PHONY: all clean test
+.PHONY: all setup-dirtest test1 test2 test3 test4 test5 test6 test7 test8 test-all test-quick clean

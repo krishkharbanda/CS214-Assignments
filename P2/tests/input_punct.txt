@@ -1,0 +1,4 @@
+word! word? (word) 'word' "word" word.
+hello, hello; hello: [hello] {hello}
+test... test!!! test???
+amazing!!!
