@@ -1,6 +1,7 @@
 *.o
 **/bin/
 memgrind
+spell.dSYM/
 memtest
 test1
 test2

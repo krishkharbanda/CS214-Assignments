@@ -9,7 +9,6 @@ all: spell
 spell: $(SRCDIR)/spell.c
 	$(CC) $(CFLAGS) -o spell $(SRCDIR)/spell.c
 
-# Setup directory structure for Test 6
 setup-dirtest:
 	@mkdir -p $(TESTDIR)/dirtest/subdir
 	@cp dirtest_file1.txt $(TESTDIR)/dirtest/file1.txt 2>/dev/null || true
@@ -17,7 +16,6 @@ setup-dirtest:
 	@cp dirtest_hidden.txt $(TESTDIR)/dirtest/.hidden.txt 2>/dev/null || true
 	@cp dirtest_subdir_file3.txt $(TESTDIR)/dirtest/subdir/file3.txt 2>/dev/null || true
 
-# Individual test targets
 test1: spell
 	@echo "=== Test 1: Basic Functionality ==="
 	@echo "Should produce no output (all words correct)"
@@ -38,7 +36,7 @@ test3: spell
 
 test4: spell
 	@echo "=== Test 4: Word Skipping ==="
-	@echo "Should produce no output (digit/symbol words skipped)"
+	@echo "Should flag '23-skidoo' and 'super8' as incorrect"
 	-./spell $(TESTDIR)/dict_skip.txt $(TESTDIR)/input_skip.txt
 	@echo ""
 
@@ -75,15 +73,6 @@ test8: spell
 # Run all tests
 test-all: test1 test2 test3 test4 test5 test6 test7 test8
 	@echo "=== All Tests Complete ==="
-
-# Quick sanity check (tests that should pass with no output)
-test-quick: spell
-	@echo "Running quick tests (should all pass with no spelling errors)..."
-	@./spell $(TESTDIR)/dict_basic.txt $(TESTDIR)/input_basic.txt && echo "✓ Test 1 passed"
-	@./spell $(TESTDIR)/dict_punct.txt $(TESTDIR)/input_punct.txt && echo "✓ Test 3 passed"
-	@./spell $(TESTDIR)/dict_skip.txt $(TESTDIR)/input_skip.txt && echo "✓ Test 4 passed"
-	@./spell $(TESTDIR)/dict_empty.txt $(TESTDIR)/input_empty.txt && echo "✓ Test 7 passed"
-	@echo "Quick tests complete!"
 
 clean:
 	rm -f spell *.o

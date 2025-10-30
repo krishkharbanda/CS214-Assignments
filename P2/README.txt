@@ -118,12 +118,13 @@ Input: tests/input_skip.txt
            "23-skidoo super8 i18n"
            "word 1,2023!84-39"
 Command: ./spell tests/dict_skip.txt tests/input_skip.txt
-Expected: No output
+Expected: 2:1 23-skidoo
+          2:11 super8
 Explanation:
   - "123", "!@#", "$100", "42", "1,2023!84-39" skipped (no letters)
-  - "23-skidoo" checked (has letters) ✓
-  - "super8" checked (has letters) ✓
-  - "i18n" checked (has letters) ✓
+  - "23-skidoo" checked (isn't in dictionary) 
+  - "super8" checked (isn't in dictionary) ✓
+  - "i18n" checked (is in dictionary) ✓
 Tests: All-digit words, all-symbol words, mixed words
 
 Test 5: Multiple Files
