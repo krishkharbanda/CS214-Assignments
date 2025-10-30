@@ -1,8 +1,6 @@
 CS 214 Project II: Spelling Checker
-====================================
 
 Authors:
---------
 Name: Ritenkumar Patel
 NetID: rp1315
 
@@ -10,7 +8,6 @@ Name: Krish Kharbanda
 NetID: kk1297
 
 Design Overview:
-----------------
 
 This spelling checker uses a hash table for efficient dictionary lookups. The implementation follows all POSIX requirements and handles edge cases in word processing.
 
@@ -36,7 +33,6 @@ Case Sensitivity:
   - Input "bar" does NOT match "Bar" 
 
 Implementation Details:
------------------------
 
 Directory Traversal:
 - Recursively scans all subdirectories
@@ -55,7 +51,6 @@ Test Plan:
 Our testing strategy covers all major functionality and edge cases:
 
 Test 1: Basic Functionality
-----------------------------
 Purpose: Verify basic word matching works correctly
 Dictionary: tests/dict_basic.txt
   Contents: hello, world, this, is, a, test, program, works, correctly
@@ -67,7 +62,6 @@ Expected: No output (all words found in dictionary)
 Tests: Basic lookup, lowercase dict matching any case
 
 Test 2: Case Sensitivity
--------------------------
 Purpose: Verify capitalization rules are enforced correctly
 Dictionary: tests/dict_case.txt
   Contents: foo, Bar, hello, World
@@ -77,7 +71,7 @@ Input: tests/input_case.txt
 Command: ./spell tests/dict_case.txt tests/input_case.txt
 Expected Output:
   1:13 bar
-  2:25 world
+  2:19 world
 Explanation:
   - "foo", "Foo", "FOO" all match lowercase "foo" 
   - "bar" doesn't match capitalized "Bar" 
@@ -88,7 +82,6 @@ Explanation:
 Tests: Case-sensitive vs case-insensitive matching
 
 Test 3: Punctuation Handling
------------------------------
 Purpose: Verify punctuation is stripped correctly
 Dictionary: tests/dict_punct.txt
   Contents: word, hello, test, amazing
@@ -102,7 +95,6 @@ Expected: No output (all punctuation stripped correctly)
 Tests: Leading quote/paren removal, trailing punctuation removal
 
 Test 4: Word Skipping
----------------------
 Purpose: Verify words are skipped appropriately
 Dictionary: tests/dict_skip.txt
   Contents: test, word, skidoo, super, i18n
@@ -121,7 +113,6 @@ Explanation:
 Tests: All-digit words, all-symbol words, mixed words
 
 Test 5: Multiple Files
-----------------------
 Purpose: Verify filename reporting with multiple files
 Dictionary: tests/dict_multi.txt
   Contents: file, one, correct
@@ -135,7 +126,6 @@ Expected Output:
 Tests: Multiple file handling, filename in output
 
 Test 6: Directory Traversal
-----------------------------
 Purpose: Verify recursive directory processing
 Dictionary: tests/dict_dir.txt
   Contents: directory, file, recursive, test
@@ -157,7 +147,6 @@ Expected: No output (all words in dictionary, .hidden.txt skipped)
 Tests: Recursive traversal, hidden file skipping, subdirectories
 
 Test 7: Empty File
-------------------
 Purpose: Verify empty files don't cause errors
 Dictionary: tests/dict_empty.txt
   Contents: word
@@ -168,7 +157,6 @@ Expected: No output
 Tests: Empty file handling
 
 Test 8: Error Cases
--------------------
 Purpose: Verify error handling
 
 8a. Missing dictionary:
@@ -184,7 +172,6 @@ Command: ./spell -s tests/dict_basic.txt
 Expected: Error message, EXIT_FAILURE
 
 Running All Tests:
-------------------
 
 Compile:
   make
@@ -206,7 +193,6 @@ Clean:
   make clean
 
 Directory Structure:
---------------------
 
 P2/
 ├── src/
@@ -226,12 +212,15 @@ P2/
 │   ├── dirtest/         # Test 6 directory structure
 │   ├── dict_empty.txt   # Test 7 dictionary
 │   └── input_empty.txt  # Test 7 input
+├── dirtest_file1.txt
+├── dirtest_file2.txt
+├── dirtest_hidden.txt
+├── dirtest_subdir_file3.txt
 ├── Makefile
 ├── AUTHOR
 └── README
 
 Known Limitations:
-------------------
 - Maximum word length: 256 characters
 - Case checking only examines first character
 - Path length limited to 1024 characters

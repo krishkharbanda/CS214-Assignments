@@ -2,6 +2,7 @@
 **/bin/
 memgrind
 spell.dSYM/
+spell
 memtest
 test1
 test2
