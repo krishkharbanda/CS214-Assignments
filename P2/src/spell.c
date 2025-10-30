@@ -12,24 +12,20 @@
 #define MAX_WORD_LEN 256
 #define HASH_SIZE 50000
 
-// Dictionary entry
 typedef struct dict_entry {
     char* word;
     int has_capital;  // 1 if first letter is capital
     struct dict_entry* next;
 } dict_entry_t;
 
-// Hash table for dictionary
 typedef struct {
     dict_entry_t** buckets;
     int size;
 } dict_t;
 
-// Global dictionary
 static dict_t* dictionary = NULL;
 static int error_found = 0;
 
-// Hash function
 unsigned int hash(const char* str) {
     unsigned int hash = 5381;
     int c;
@@ -38,7 +34,6 @@ unsigned int hash(const char* str) {
     return hash % HASH_SIZE;
 }
 
-// Create dictionary
 dict_t* dict_create() {
     dict_t* d = malloc(sizeof(dict_t));
     d->size = HASH_SIZE;
@@ -46,7 +41,6 @@ dict_t* dict_create() {
     return d;
 }
 
-// Convert to lowercase
 void to_lower(char* dest, const char* src) {
     int i = 0;
     while (src[i]) {
@@ -56,7 +50,6 @@ void to_lower(char* dest, const char* src) {
     dest[i] = '\0';
 }
 
-// Add word to dictionary
 void dict_add(dict_t* d, const char* word) {
     char lower[MAX_WORD_LEN];
     to_lower(lower, word);
@@ -84,7 +77,6 @@ void dict_add(dict_t* d, const char* word) {
     d->buckets[h] = entry;
 }
 
-// Check if word is in dictionary
 int dict_lookup(dict_t* d, const char* word) {
     char lower[MAX_WORD_LEN];
     to_lower(lower, word);
@@ -94,7 +86,6 @@ int dict_lookup(dict_t* d, const char* word) {
     
     while (curr) {
         if (strcmp(curr->word, lower) == 0) {
-            // Check capitalization rules
             if (curr->has_capital) {
                 // Dictionary has capital, so input must have capital first letter
                 return isupper(word[0]);
@@ -107,7 +98,6 @@ int dict_lookup(dict_t* d, const char* word) {
     return 0;
 }
 
-// Load dictionary from file
 int load_dictionary(const char* filename) {
     int fd = open(filename, O_RDONLY);
     if (fd < 0) {
@@ -136,7 +126,6 @@ int load_dictionary(const char* filename) {
         }
     }
     
-    // Handle last word
     if (word_len > 0) {
         word[word_len] = '\0';
         dict_add(dictionary, word);
@@ -146,7 +135,6 @@ int load_dictionary(const char* filename) {
     return 0;
 }
 
-// Check if word should be skipped
 int should_skip_word(const char* word) {
     int has_letter = 0;
     
@@ -160,7 +148,6 @@ int should_skip_word(const char* word) {
     return !has_letter;
 }
 
-// Normalize word (strip leading/trailing punctuation)
 void normalize_word(char* dest, const char* src) {
     int start = 0;
     int len = strlen(src);
@@ -185,7 +172,6 @@ void normalize_word(char* dest, const char* src) {
     dest[j] = '\0';
 }
 
-// Process a single file
 void check_file(const char* filename, int print_filename) {
     int fd = open(filename, O_RDONLY);
     if (fd < 0) {
@@ -266,7 +252,6 @@ void check_file(const char* filename, int print_filename) {
     close(fd);
 }
 
-// Check if filename ends with suffix
 int ends_with(const char* str, const char* suffix) {
     int str_len = strlen(str);
     int suffix_len = strlen(suffix);
@@ -276,7 +261,6 @@ int ends_with(const char* str, const char* suffix) {
     return strcmp(str + str_len - suffix_len, suffix) == 0;
 }
 
-// Recursively process directory
 void process_directory(const char* dirname, const char* suffix) {
     DIR* dir = opendir(dirname);
     if (!dir) {
@@ -300,7 +284,6 @@ void process_directory(const char* dirname, const char* suffix) {
             // Recursively process subdirectory
             process_directory(path, suffix);
         } else if (S_ISREG(st.st_mode)) {
-            // Check if file has correct suffix
             if (ends_with(entry->d_name, suffix)) {
                 check_file(path, 1);
             }
@@ -334,15 +317,12 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
     
-    // Load dictionary
     if (load_dictionary(argv[arg_idx]) < 0) {
         return EXIT_FAILURE;
     }
     arg_idx++;
     
-    // Process files
     if (arg_idx >= argc) {
-        // Read from stdin
         check_file("/dev/stdin", 0);
     } else {
         int file_count = argc - arg_idx;

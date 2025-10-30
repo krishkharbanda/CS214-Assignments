@@ -3,16 +3,16 @@ CS 214 Project II: Spelling Checker
 
 Authors:
 --------
-Name: [Your Name]
-NetID: [your_netid]
+Name: Ritenkumar Patel
+NetID: rp1315
 
-Name: [Partner Name]
-NetID: [partner_netid]
+Name: Krish Kharbanda
+NetID: kk1297
 
 Design Overview:
 ----------------
 
-This spelling checker uses a hash table for efficient dictionary lookups with O(1) average-case performance. The implementation follows all POSIX requirements and handles edge cases in word processing.
+This spelling checker uses a hash table for efficient dictionary lookups. The implementation follows all POSIX requirements and handles edge cases in word processing.
 
 Key Design Decisions:
 - Hash table with 50,000 buckets using chaining for collision resolution
@@ -31,24 +31,17 @@ Case Sensitivity:
 - Lowercase dictionary words match ANY capitalization in input
 - Capitalized dictionary words require capital first letter in input
 - Example: dict has "foo" and "Bar"
-  - Input "Foo", "FOO", "foo" all match "foo" ✓
-  - Input "Bar", "BAR" match "Bar" ✓
-  - Input "bar" does NOT match "Bar" ✗
+  - Input "Foo", "FOO", "foo" all match "foo" 
+  - Input "Bar", "BAR" match "Bar" 
+  - Input "bar" does NOT match "Bar" 
 
 Implementation Details:
 -----------------------
-
-File I/O:
-- Uses only POSIX read() for all file input (required)
-- Uses fprintf/printf for output (permitted)
-- 8KB buffer with manual line parsing
-- Tracks line/column position during parsing
 
 Directory Traversal:
 - Recursively scans all subdirectories
 - Skips files/directories starting with '.'
 - Only processes files matching specified suffix (default: .txt)
-- Uses opendir(), readdir(), closedir()
 
 Error Handling:
 - Returns EXIT_FAILURE if any file cannot be opened
@@ -86,12 +79,12 @@ Expected Output:
   1:13 bar
   2:25 world
 Explanation:
-  - "foo", "Foo", "FOO" all match lowercase "foo" ✓
-  - "bar" doesn't match capitalized "Bar" ✗
-  - "Bar", "BAR" match capitalized "Bar" ✓
-  - "hello", "Hello", "HELLO" match lowercase "hello" ✓
-  - "world" doesn't match capitalized "World" ✗
-  - "World", "WORLD" match capitalized "World" ✓
+  - "foo", "Foo", "FOO" all match lowercase "foo" 
+  - "bar" doesn't match capitalized "Bar" 
+  - "Bar", "BAR" match capitalized "Bar" 
+  - "hello", "Hello", "HELLO" match lowercase "hello" 
+  - "world" doesn't match capitalized "World" 
+  - "World", "WORLD" match capitalized "World" 
 Tests: Case-sensitive vs case-insensitive matching
 
 Test 3: Punctuation Handling
@@ -123,8 +116,8 @@ Expected: 2:1 23-skidoo
 Explanation:
   - "123", "!@#", "$100", "42", "1,2023!84-39" skipped (no letters)
   - "23-skidoo" checked (isn't in dictionary) 
-  - "super8" checked (isn't in dictionary) ✓
-  - "i18n" checked (is in dictionary) ✓
+  - "super8" checked (isn't in dictionary) 
+  - "i18n" checked (is in dictionary) 
 Tests: All-digit words, all-symbol words, mixed words
 
 Test 5: Multiple Files
@@ -240,18 +233,8 @@ P2/
 Known Limitations:
 ------------------
 - Maximum word length: 256 characters
-- Hash table size fixed at 50,000 buckets
-- No Unicode normalization support
 - Case checking only examines first character
 - Path length limited to 1024 characters
-
-Performance:
-------------
-- Hash table provides O(1) average lookup
-- Dictionary loading: O(n) where n = number of words
-- Text processing: O(m) where m = number of words in input
-- Memory usage: O(n) for dictionary storage
-- Efficient for large dictionaries (tested with 100K+ words)
 
 Exit Codes:
 -----------
