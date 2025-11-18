@@ -9,7 +9,7 @@ SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/shell.c $(SRC_DIR)/parse.c $(SRC_DIR)/exe
 OBJECTS = $(SOURCES:.c=.o)
 EXECUTABLE = mysh
 
-TEST_SCRIPTS = test_builtins.sh test_exec.sh test_redir_pipe.sh test_conditionals.sh
+TEST_SCRIPTS = test_builtins.sh test_exec.sh test_redir_pipe.sh test_conditionals.sh test_edge_cases.sh
 
 all: $(EXECUTABLE)
 
@@ -41,6 +41,9 @@ test: $(EXECUTABLE)
 	
 	@echo "\n--- 4. Testing Conditionals (Will terminate with die) ---"
 	@./$(EXECUTABLE) $(TEST_DIR)/test_conditionals.sh
+
+	@echo "\n--- 5. Testing Edge Cases (Will terminate with exit) ---"
+	@./$(EXECUTABLE) $(TEST_DIR)/test_edge_cases.sh
 	
 	@echo "\n--- Cleaning up temporary test files ---"
 	@make clean_tests
