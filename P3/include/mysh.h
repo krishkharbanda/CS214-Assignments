@@ -55,7 +55,7 @@ Job *parse_job(TokenArray *tokens, int *conditional_type);
 void free_job(Job *job);
 
 // Function prototypes - execution
-int execute_job(Job *job, int last_exit_status, int *new_exit_status);
+int execute_job(Job *job, int last_exit_status, int *new_exit_status, int is_interactive);
 int execute_builtin(const char *cmd, char **argv, int argc);
 int is_builtin(const char *cmd);
 

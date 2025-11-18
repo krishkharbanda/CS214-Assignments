@@ -12,6 +12,7 @@ TokenArray *tokenize(const char *line) {
         return NULL;
     }
     
+    // Initial allocation for tokens
     tokens->items = malloc(100 * sizeof(Token));
     tokens->capacity = 100;
     tokens->count = 0;
@@ -22,82 +23,73 @@ TokenArray *tokenize(const char *line) {
         return NULL;
     }
     
-    // Remove leading whitespace
+    // Skip leading whitespace
     while (*line && isspace(*line)) line++;
     
-    // Skip comments
+    // Skip command if it starts with a comment
     if (*line == '#') {
         return tokens;
     }
     
-    // Find comment position
+    // Find comment position to trim the line
     const char *comment_pos = strchr(line, '#');
+    
+    // Determine the length of the line content before any comment or EOL
     int line_len = comment_pos ? (comment_pos - line) : strlen(line);
     
-    char *temp_line = malloc(line_len + 1);
-    if (temp_line == NULL) {
+    // Allocate and copy the clean line content (tokens only)
+    char *line_copy = malloc(line_len + 1);
+    if (line_copy == NULL) {
         perror("malloc");
-        free(tokens->items);
-        free(tokens);
+        free_tokens(tokens);
         return NULL;
     }
     
-    strncpy(temp_line, line, line_len);
-    temp_line[line_len] = '\0';
+    strncpy(line_copy, line, line_len);
+    line_copy[line_len] = '\0';
     
-    int i = 0;
-    while (temp_line[i]) {
-        while (temp_line[i] && isspace(temp_line[i])) i++;
-        
-        if (temp_line[i] == '\0') break;
-        
+    char *saveptr;
+    // Use whitespace characters as delimiters for strtok_r
+    char *token_str = strtok_r(line_copy, " \t\n", &saveptr);
+    
+    while (token_str != NULL) {
         Token token;
         
-        if (temp_line[i] == '<') {
+        // --- 1. Identify Special Tokens ---
+        // Note: The assignment permits assuming >|< are separated by whitespace.
+        if (strcmp(token_str, "<") == 0) {
             token.type = TOKEN_REDIRECT_IN;
-            token.value = malloc(2);
-            token.value[0] = '<';
-            token.value[1] = '\0';
-            i++;
-        } else if (temp_line[i] == '>') {
+        } else if (strcmp(token_str, ">") == 0) {
             token.type = TOKEN_REDIRECT_OUT;
-            token.value = malloc(2);
-            token.value[0] = '>';
-            token.value[1] = '\0';
-            i++;
-        } else if (temp_line[i] == '|') {
+        } else if (strcmp(token_str, "|") == 0) {
             token.type = TOKEN_PIPE;
-            token.value = malloc(2);
-            token.value[0] = '|';
-            token.value[1] = '\0';
-            i++;
         } else {
-            int start = i;
-            while (temp_line[i] && !isspace(temp_line[i]) && 
-                   temp_line[i] != '<' && temp_line[i] != '>' && temp_line[i] != '|') {
-                i++;
-            }
+            // --- 2. Identify Word/Conditional Tokens ---
+            token.type = TOKEN_WORD;
             
-            int len = i - start;
-            token.value = malloc(len + 1);
-            strncpy(token.value, temp_line + start, len);
-            token.value[len] = '\0';
-            
-            if (strcmp(token.value, "and") == 0) {
+            if (strcmp(token_str, "and") == 0) {
                 token.type = TOKEN_AND;
-            } else if (strcmp(token.value, "or") == 0) {
+            } else if (strcmp(token_str, "or") == 0) {
                 token.type = TOKEN_OR;
-            } else {
-                token.type = TOKEN_WORD;
             }
         }
         
+        // Allocate and copy the value
+        token.value = strdup(token_str);
+        if (token.value == NULL) {
+            perror("strdup");
+            free(line_copy);
+            free_tokens(tokens);
+            return NULL;
+        }
+        
+        // Handle dynamic array expansion
         if (tokens->count >= tokens->capacity) {
             tokens->capacity *= 2;
             Token *new_items = realloc(tokens->items, tokens->capacity * sizeof(Token));
             if (new_items == NULL) {
                 perror("realloc");
-                free(temp_line);
+                free(line_copy);
                 free_tokens(tokens);
                 return NULL;
             }
@@ -105,9 +97,12 @@ TokenArray *tokenize(const char *line) {
         }
         
         tokens->items[tokens->count++] = token;
+        
+        // Get the next token
+        token_str = strtok_r(NULL, " \t\n", &saveptr);
     }
     
-    free(temp_line);
+    free(line_copy);
     return tokens;
 }
 
@@ -131,6 +126,7 @@ Job *parse_job(TokenArray *tokens, int *conditional_type) {
         return NULL;
     }
     
+    // Initial allocation for job segments
     job->segments = malloc(50 * sizeof(JobSegment));
     if (job->segments == NULL) {
         perror("malloc");
@@ -141,6 +137,7 @@ Job *parse_job(TokenArray *tokens, int *conditional_type) {
     job->segment_count = 0;
     int token_idx = 0;
     
+    // Check for leading conditional (and/or)
     if (token_idx < tokens->count && 
         (tokens->items[token_idx].type == TOKEN_AND || 
          tokens->items[token_idx].type == TOKEN_OR)) {
@@ -152,6 +149,7 @@ Job *parse_job(TokenArray *tokens, int *conditional_type) {
         JobSegment segment;
         segment.input_file = NULL;
         segment.output_file = NULL;
+        // Initial allocation for argv
         segment.argv = malloc(100 * sizeof(char *));
         segment.argc = 0;
         
@@ -161,6 +159,7 @@ Job *parse_job(TokenArray *tokens, int *conditional_type) {
             return NULL;
         }
         
+        // Process tokens within a single pipeline segment
         while (token_idx < tokens->count && tokens->items[token_idx].type != TOKEN_PIPE) {
             Token *t = &tokens->items[token_idx];
             
@@ -172,6 +171,7 @@ Job *parse_job(TokenArray *tokens, int *conditional_type) {
                     free_job(job);
                     return NULL;
                 }
+                // Store the filename pointer, which was allocated in tokenize
                 segment.input_file = tokens->items[token_idx].value;
                 token_idx++;
             } else if (t->type == TOKEN_REDIRECT_OUT) {
@@ -182,12 +182,15 @@ Job *parse_job(TokenArray *tokens, int *conditional_type) {
                     free_job(job);
                     return NULL;
                 }
+                // Store the filename pointer
                 segment.output_file = tokens->items[token_idx].value;
                 token_idx++;
             } else if (t->type == TOKEN_WORD) {
+                // Add argument to argv list
                 segment.argv[segment.argc++] = t->value;
                 token_idx++;
             } else {
+                // Should not happen if tokenizing is correct (conditional tokens are checked first)
                 fprintf(stderr, "Syntax error in pipeline\n");
                 free(segment.argv);
                 free_job(job);
@@ -195,6 +198,7 @@ Job *parse_job(TokenArray *tokens, int *conditional_type) {
             }
         }
         
+        // Check for empty command in segment (e.g., "ls | | grep")
         if (segment.argc == 0) {
             fprintf(stderr, "Syntax error: empty command\n");
             free(segment.argv);
@@ -202,15 +206,18 @@ Job *parse_job(TokenArray *tokens, int *conditional_type) {
             return NULL;
         }
         
+        // Null-terminate the argument list for execv()
         segment.argv[segment.argc] = NULL;
         
         job->segments[job->segment_count++] = segment;
         
+        // Advance past the pipe token, if present
         if (token_idx < tokens->count && tokens->items[token_idx].type == TOKEN_PIPE) {
             token_idx++;
         }
     }
     
+    // Final check: if the input was empty after conditional check
     if (job->segment_count == 0) {
         fprintf(stderr, "Syntax error: no command\n");
         free(job->segments);
@@ -225,6 +232,7 @@ void free_job(Job *job) {
     if (job == NULL) return;
     
     for (int i = 0; i < job->segment_count; i++) {
+        // Free the argv array for each segment
         free(job->segments[i].argv);
     }
     
