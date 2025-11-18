@@ -12,6 +12,7 @@ test3b
 test3c
 test4
 test5
+mysh
 *.exe
 *.gcda
 *.gcno
