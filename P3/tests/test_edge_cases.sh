@@ -64,11 +64,10 @@ echo ""
 # Test 5.10: Exit Status Propagation Through Pipeline
 echo "--- 5.10: Pipeline Exit Status ---"
 false | true | false
-echo "Pipeline exited with: $?"  # Should show 1 (last command failed)
+echo "Pipeline exited with: $?"  
 echo "--- PASS: Exit status from last command ---"
 echo ""
 
-# Cleanup
 rm -f /tmp/edge_*.txt /tmp/trunc_test.txt
 
 echo "=== ALL EDGE CASE TESTS COMPLETE ==="

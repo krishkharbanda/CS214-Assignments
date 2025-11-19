@@ -59,14 +59,14 @@ Piped input:
 
 Features:
 ---------
-- **Interactive Mode**: Welcome/exit messages, prompt (mysh>), runs user entries.
-- **Batch Mode**: Executes commands from file or piped stdin, no prompts/messages.
-- **Built-in Commands**: cd, pwd, which, exit, die.
-- **Command Execution**: External programs looked up by path or in /usr/local/bin, /usr/bin, /bin.
-- **Pipelines & Redirection**: Arbitrary pipelines (`|`), output (`>`), input (`<`), both can be combined.
-- **Conditionals**: `and` (run if previous succeeded), `or` (run if previous failed), chainable.
-- **Error Handling**: Bad syntax, failed redirection, missing files, wrong built-in usage, command not found, all reported clearly.
-- **POSIX-Compliant I/O**: Uses read(), fork(), execv(), pipe(), dup2(), and standard system calls as per the spec.
+- Interactive Mode: Welcome/exit messages, prompt (mysh>), runs user entries.
+- Batch Mode: Executes commands from file or piped stdin, no prompts/messages.
+- Built-in Commands: cd, pwd, which, exit, die.
+- Command Execution: External programs looked up by path or in /usr/local/bin, /usr/bin, /bin.
+- Pipelines & Redirection: Arbitrary pipelines (`|`), output (`>`), input (`<`), both can be combined.
+- Conditionals: `and` (run if previous succeeded), `or` (run if previous failed), chainable.
+- Error Handling: Bad syntax, failed redirection, missing files, wrong built-in usage, command not found, all reported clearly.
+- POSIX-Compliant I/O: Uses read(), fork(), execv(), pipe(), dup2(), and standard system calls as per the spec.
 
 Testing:
 --------

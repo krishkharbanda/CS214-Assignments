@@ -15,7 +15,6 @@ int main(int argc, char *argv[]) {
     int is_interactive = 0;
     int input_fd = STDIN_FILENO;
     
-    // Parse command-line arguments
     if (argc > 2) {
         fprintf(stderr, "%s: too many arguments\n", argv[0]);
         return EXIT_FAILURE;
@@ -31,26 +30,20 @@ int main(int argc, char *argv[]) {
         input_fd = fileno(input_file);
     }
     
-    // Determine interactive mode using isatty()
     is_interactive = isatty(input_fd);
     
-    // Ignore SIGCHLD to prevent zombie processes
     signal(SIGCHLD, SIG_IGN);
     
-    // Welcome message for interactive mode
     if (is_interactive) {
         printf("Welcome to my shell!\n");
     }
     
-    // Main command loop
     shell_loop(input_fd, is_interactive);
     
-    // Cleanup
     if (input_file != NULL) {
         fclose(input_file);
     }
     
-    // Exit message for interactive mode
     if (is_interactive) {
         printf("Exiting my shell.\n");
     }

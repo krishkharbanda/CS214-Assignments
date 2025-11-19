@@ -9,11 +9,6 @@
 
 #include "mysh.h"
 
-// --- Utility Functions (Prototypes in mysh.h) ---
-
-/**
- * Checks if a command is a built-in command handled by mysh.
- */
 int is_builtin(const char *cmd) {
     return strcmp(cmd, "cd") == 0 ||
            strcmp(cmd, "pwd") == 0 ||
@@ -22,10 +17,6 @@ int is_builtin(const char *cmd) {
            strcmp(cmd, "die") == 0;
 }
 
-/**
- * Executes a built-in command.
- * Returns 0 on success, 1 on failure, and -1 if 'die' was executed.
- */
 int execute_builtin(const char *cmd, char **argv, int argc) {
     if (strcmp(cmd, "cd") == 0) {
         if (argc != 2) {
@@ -90,11 +81,8 @@ int execute_builtin(const char *cmd, char **argv, int argc) {
 }
 
 char *find_program(const char *name) {
-    // 1. Pathname (contains a slash)
     if (strchr(name, '/') != NULL) {
-        // We only check if the program exists and is executable at the exact path provided.
         if (access(name, X_OK) == 0) {
-            // Allocate and return a copy of the name to maintain ownership semantics
             char *result = malloc(strlen(name) + 1);
             if (result == NULL) {
                 perror("malloc");
@@ -106,7 +94,6 @@ char *find_program(const char *name) {
         return NULL; // Path not found or not executable
     }
     
-    // 2. Bare name search
     const char *paths[] = {"/usr/local/bin", "/usr/bin", "/bin"};
     
     for (int i = 0; i < 3; i++) {
@@ -118,18 +105,14 @@ char *find_program(const char *name) {
         sprintf(full_path, "%s/%s", paths[i], name);
         
         if (access(full_path, X_OK) == 0) {
-            // Found: return the allocated full_path
             return full_path;
         }
         
-        // Not found: free this path string before trying the next directory
         free(full_path);
     }
     
     return NULL;
 }
-
-// --- Main Execution Logic (No changes needed here based on test output/logic) ---
 
 int execute_job(Job *job, int last_exit_status, int *new_exit_status, int is_interactive) {
     if (job->segment_count == 0) {
@@ -137,7 +120,6 @@ int execute_job(Job *job, int last_exit_status, int *new_exit_status, int is_int
         return 0;
     }
     
-    // --- Single Command Execution ---
     if (job->segment_count == 1) {
         JobSegment *seg = &job->segments[0];
         
@@ -162,7 +144,6 @@ int execute_job(Job *job, int last_exit_status, int *new_exit_status, int is_int
         }
         
         if (pid == 0) {
-            // Child process setup
             
             if (!is_interactive && seg->input_file == NULL) {
                 int devnull_fd = open("/dev/null", O_RDONLY);
@@ -219,7 +200,6 @@ int execute_job(Job *job, int last_exit_status, int *new_exit_status, int is_int
         return 0;
     }
     
-    // --- Pipeline Execution ---
     int pipe_count = job->segment_count - 1;
     int pipes[pipe_count][2];
     pid_t pids[job->segment_count];
