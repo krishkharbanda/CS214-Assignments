@@ -1,6 +1,4 @@
-MyShell (mysh) — CS 214 Project III
-===================================
-
+CS 214 Project III: mysh
 Authors:
 ---------
 Name: Krish Kharbanda
@@ -12,7 +10,7 @@ NetID: rp1315
 Overview:
 ---------
 mysh is a Unix-like command-line shell developed for CS 214 at Rutgers.
-It supports normal and batch modes, pipelines, file redirection, built-in commands (cd, pwd, which, exit, die), and conditional execution (and, or) as specified in the project.
+It supports normal and batch modes, pipelines, file redirection, built-in commands (cd, pwd, which, exit, die), and conditional execution (and, or).
 
 Directory Structure:
 --------------------
@@ -96,16 +94,3 @@ Notes & Known Limitations:
 - Arguments are not quoted/escaped (simple splitting)
 - Built-ins only participate in pipelines at segment ends
 - Error messages use UNIX conventions
-
-Submission:
------------
-Update this README.txt and the AUTHOR file with your name(s) and netid(s)!
-Package files for submission:
-    tar -czf mysh_project3_submission.tgz src/ include/ tests/ Makefile README.txt AUTHOR
-
-References:
------------
-- CS 214 Fall 2025 Project III spec (David Menendez)
-- POSIX/SUS man pages (`man fork`, `man execv`, `man pipe`, etc.)
-- CS 214 course lecture notes
-
