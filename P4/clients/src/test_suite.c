@@ -172,11 +172,9 @@ void run_concurrent() {
     printf("--- Running Concurrency Test (Port %s) ---\n", TARGET_PORT);
     pthread_t t1, t2, t3, t4;
     
-    // Game 1: Alice vs Bob
     PlayerArgs p1 = {"Alice", 1, 1};
     PlayerArgs p2 = {"Bob", 2, 0};
     
-    // Game 2: Charlie vs Dave
     PlayerArgs p3 = {"Charlie", 1, 1};
     PlayerArgs p4 = {"Dave", 2, 0};
 
@@ -238,7 +236,7 @@ void run_errors() {
     run_case("Case E (EarlyMove)", case_e, "FAIL|24");
 }
 
-// --- Test 4: Extra Credit (Impatience) ---
+// --- Test 4: Extra Credit Impatience Case ---
 
 void *impatient_p1(void *arg) {
     int s = connect_inet(HOST, TARGET_PORT);
