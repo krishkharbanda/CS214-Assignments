@@ -38,15 +38,11 @@ Automated Testing
 You can run all tests sequentially using the Makefile.
 Note: You must start the server in a separate terminal before running the tests.
 
-1.  **Terminal 1 (Server):**
-    ```bash
+1.  Terminal 1 (Server):
     ./nimd 5001
-    ```
 
-2.  **Terminal 2 (Test Suite):**
-    ```bash
+2.  Terminal 2 (Test Suite):
     make test
-    ```
 
 This runs 4 test scenarios:
 1.  Happy Path: Simulates a full valid game between two bots.
@@ -63,7 +59,7 @@ Connects to the server and prompts you to move when it is your turn. Prevents yo
 
     ./testc localhost 5000 Alice
 
-rawc (Debugging Client)**
+rawc (Debugging Client)
 Usage: `rawc <host> <port>`
 Allows you to type raw NGP protocol strings directly to the server. Useful for debugging specific byte sequences or malformed messages.
 
