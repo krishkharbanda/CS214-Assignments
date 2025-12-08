@@ -48,15 +48,14 @@ Note: You must start the server in a separate terminal before running the tests.
     make test
     ```
 
-This runs 5 test scenarios:
+This runs 4 test scenarios:
 1.  Happy Path: Simulates a full valid game between two bots.
 2.  Concurrency: Runs multiple games simultaneously to ensure threads do not block each other.
 3.  Basic Errors: Checks for handling of long names, duplicate logins, and framing errors.
-4.  Game Logic: Verifies detection of illegal moves (invalid pile/quantity) and forfeits on disconnect.
-5.  Extra Credit: Verifies that the server sends `FAIL 31` (Impatient) immediately if a player moves out of turn.
+4.  Extra Credit: Verifies that the server sends `FAIL 31` (Impatient) immediately if a player moves out of turn.
 
 Manual Testing
-You can also play the game interactively using `testc` or `rawc`.
+You can also play the game interactively using `testc` or `rawc`. Since Ctrl + C cannot be triggered through a C script, you can test forfeits through there.
 
 testc (Interactive Client)
 Usage: `testc <host> <port> <name>`
